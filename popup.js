@@ -8,7 +8,7 @@ function notify(message) {
   chrome.notifications.create({
     title: 'from POPUP',
     type: 'basic',
-    iconUrl: 'images/get_started48.png',
+    iconUrl: 'icon/48.png',
     message
   });
 }
