@@ -14,11 +14,12 @@ function notify(message) {
 }
 
 chrome.runtime.onInstalled.addListener(function() {
+  /*
   chrome.storage.sync.set({color: '#3aa757'}, function() {
     console.log("The color is green.");
     notify("onInstalled");
   });
-
+  */
   chrome.declarativeContent.onPageChanged.removeRules(undefined, function() {
     chrome.declarativeContent.onPageChanged.addRules([{
         conditions: [new chrome.declarativeContent.PageStateMatcher({
@@ -32,7 +33,7 @@ chrome.runtime.onInstalled.addListener(function() {
 });
 
 
-var cache = {}
+var dpbind = "";
 
 chrome.runtime.onMessage.addListener((request, sender, response) => {
     //notify("onMessage cmd=" + request.cmd);
@@ -45,29 +46,23 @@ chrome.runtime.onMessage.addListener((request, sender, response) => {
                                            });`}
                                  )
     } else if (request.cmd == 'open-tab') { // filed by ^
-        notify("open-tab: 127.0.0.1");
-        chrome.tabs.create({url: "http://10.0.0.7:8081/",
-                           openerTabId: sender.tab.id,
-                           index: sender.tab.index + 1 },
+        //notify("open-tab: 127.0.0.1");
+        dpbind = request.dat;
+        chrome.tabs.create({url: "http://127.0.0.1:8081/"},
+                           //openerTabId: sender.tab.id,
+                           //index: sender.tab.index + 1 },
             (tab) => {
                 //cache[tab.id] = request.dat
                 // FIXME clean it
-                notify("exec content.js");
-                chrome.tabs.executeScript(tab.id, {file: 'content.js' });
-                /*
-                notify("after open-tab, send save-tab")
-                chrome.tabs.sendMessage(tab.id, 
-                                        {cmd: 'save-tab',
-                                         tab: tab,
-                                         dat: "request.dat"});
-                */
+                //notify("exec content.js");
+                chrome.tabs.executeScript(tab.id, {
+                    code: `chrome.runtime.sendMessage({cmd: 'save-tab'}, (resp) => {
+                                document.getElementById("bind").innerText = resp.dat;
+                           });`});
             }
         );
     } else if (request.cmd == 'save-tab') { // fired by ^
-        notify("save-tab:!!!!");
-        response({dat: "this is dat"});
-        //chrome.tabs.executeScript(request.tab.id, {
-        //    code: `alert("in new tab");`
-        //})
+        //notify("save-tab:!!!!");
+        response({dat: dpbind});
     }
 })

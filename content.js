@@ -26,5 +26,5 @@ chrome.runtime.onMessage.addListener((request, sender, response) => {
 */
 
 chrome.runtime.sendMessage({cmd: 'save-tab'}, (resp) => {
-    document.documentElement.innerText = resp.dat;
+    document.getElementById("bind").innerText = resp.dat;
 });
